@@ -1,0 +1,103 @@
+<!--  -->
+<template>
+  <div class="app-container">
+    <!-- 表格 -->
+    <el-table :data="list" border stripe>
+      <el-table-column type="index" width="50" />
+      <el-table-column prop="borrowAmount" label="借款额度" />
+      <el-table-column prop="integralStart" label="积分区间开始" />
+      <el-table-column prop="integralEnd" label="积分区间结束" />
+      <el-table-column label="操作">
+        <template slot-scope="scope">
+          <router-link
+            :to="'/core/integral-grade/edit/' + scope.row.id"
+            style="margin-right:5px;"
+          >
+            <el-button type="primary" size="mini" icon="el-icon-edit">
+              修改
+            </el-button>
+          </router-link>
+          <el-button
+            type="danger"
+            size="mini"
+            icon="el-icon-delete"
+            @click="removeById(scope.row.id)"
+          >
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+
+<script>
+//这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
+//例如：import 《组件名称》 from '《组件路径》';
+import integralGradeApi from '@/api/core/integral-grade'
+
+export default {
+  //import引入的组件需要注入到对象中才能使用
+  components: {},
+  data() {
+    //这里存放数据
+    return {
+      list: [] //积分等级列表
+    }
+  },
+  //监听属性 类似于data概念
+  computed: {},
+  //监控data中的数据变化
+  watch: {},
+  //方法集合
+  methods: {
+    fetchData() {
+      integralGradeApi.list().then(response => {
+        this.list = response.data.list
+      })
+    },
+
+    removeById(id) {
+      // console.log(id)
+      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          return integralGradeApi.removeById(id)
+        })
+        .then(response => {
+          this.$message({
+            message: response.message,
+            type: 'success'
+          })
+          this.fetchData()
+        })
+        .catch(error => {
+          // console.log('error111111', error)
+          if (error === 'cancel') {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          }
+        })
+    }
+  },
+  //生命周期 - 创建完成（可以访问当前this实例）
+  created() {
+    this.fetchData()
+  },
+  //生命周期 - 挂载完成（可以访问DOM元素）
+  mounted() {},
+  beforeCreate() {}, //生命周期 - 创建之前
+  beforeMount() {}, //生命周期 - 挂载之前
+  beforeUpdate() {}, //生命周期 - 更新之前
+  updated() {}, //生命周期 - 更新之后
+  beforeDestroy() {}, //生命周期 - 销毁之前
+  destroyed() {}, //生命周期 - 销毁完成
+  activated() {} //如果页面有keep-alive缓存功能，这个函数会触发
+}
+</script>
+<style scoped></style>
